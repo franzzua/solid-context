@@ -17,18 +17,37 @@
     ],
     "types": [
       "node",
-      "symbol-observable",
-      "jest"
+      "symbol-observable"
     ],
     "paths": {
-      "text-encoding": [
-        "./polyfills/text-encoder.js"
+      "@infr": [
+        "./infr"
+      ],
+      "@domain": [
+        "./domain"
+      ],
+      "@app": [
+        "./app"
+      ],
+      "@ui": [
+        "./ui"
+      ],
+      "solid-auth-cli": [
+        "solid-auth-client"
       ]
-    }
+    },
+    "plugins": [
+      {
+        "transform": "@hypertype/tools/plugins/absolute",
+        "after": true
+      }
+    ]
+
   },
   "exclude": [
     "dist",
     "node_modules",
-    "tests"
+    "tests",
+    "jest.config.js"
   ]
 }
