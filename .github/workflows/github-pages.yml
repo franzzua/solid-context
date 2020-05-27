@@ -35,6 +35,13 @@ jobs:
       run: |
         npm i pnpm -g
         pnpm i
+
+    - name: cache nodemodules
+        id: cache-primes
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-primes
       
     # Runs a single command using the runners shell
     - name: Build typescript
