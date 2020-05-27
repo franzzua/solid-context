@@ -5,6 +5,7 @@
   "scripts": {
     "build": "ttsc --watch",
     "server:watch": "hypertype web --watch --run",
+    "bundle:prod": "hypertype web --prod",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
