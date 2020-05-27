@@ -2,10 +2,10 @@ const auth = require('solid-auth-cli')
 const FC   = require('solid-file-client')
 const fc   = new FC( auth );
 
-const username = process.env['$SOLID_USERNAME'];
-const password = process.env['$SOLID_PASSWORD'];
-const idp = process.env['$SOLID_IDP'] || 'https://inrupt.net';
-const target = process.env['$SOLID_TARGET'] || 'https://context.inrupt.net';
+const username = process.env['SOLID_USERNAME'] || 'example';
+const password = process.env['SOLID_PASSWORD'] || 'password';
+const idp = process.env['SOLID_IDP'] || 'https://inrupt.net';
+const target = process.env['SOLID_TARGET'] || 'https://context.inrupt.net';
 
 async function publish() {
     await auth.login({
