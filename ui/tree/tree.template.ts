@@ -1,7 +1,10 @@
 import {ContextTree} from "@domain";
+import {wire} from "@hypertype/ui";
 
 export const Template = (html, state: IState) => html`
-    <app-context path="${[state.tree.Root.Id]}"></app-context>
+    ${wire()`
+        <app-context path="${[state.tree.Root.Id]}"></app-context>
+    `}
 `;
 
 export interface IState {

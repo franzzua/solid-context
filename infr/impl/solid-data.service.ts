@@ -1,4 +1,4 @@
-import {bufferTime, catchError, filter, Injectable, mergeMap, never, Subject, utc} from "@hypertype/core";
+import {bufferTime, catchError, filter, Injectable, mergeMap, never,Observable, Subject, utc} from "@hypertype/core";
 import {ContextDocument} from "../data/contextDocument";
 import {ContextDbo, Id, IDataAdapter, RootDbo} from "@domain";
 import {ContextEntity} from "../data/contextEntity";
@@ -7,6 +7,7 @@ import {IAppAuthService} from "@app";
 @Injectable()
 export class SolidDataService extends IDataAdapter {
     private document: ContextDocument;
+    private saveDocSubscription$: ReturnType<typeof Observable.prototype.subscribe>;
 
     constructor(private appAuthService: IAppAuthService) {
         super();
@@ -18,6 +19,7 @@ export class SolidDataService extends IDataAdapter {
     }
 
     public async Load() {
+        await this.saveDocSubscription$?.unsubscribe();
         const session = await this.appAuthService.GetSession();
         this.document = new ContextDocument(`${new URL(session.webId).origin}/context/index.ttl`);
         await this.document.Init();
@@ -38,6 +40,7 @@ export class SolidDataService extends IDataAdapter {
                 ContextsState: {}
             }
         }
+        this.saveDocSubscription$ = this.saveDoc$.subscribe()
         return rootDTO;
     }
 
@@ -47,7 +50,15 @@ export class SolidDataService extends IDataAdapter {
         this.UpdateEntities.next(newItem);
     }
 
-    public async Add(childId, parentId, index): Promise<void> {
+    public async Delete(ids: Id[]): Promise<any> {
+        for (const id of ids) {
+            const entity = this.document.Contexts.get(id);
+            entity.Remove();
+            this.UpdateEntities.next(entity);
+        }
+    }
+
+    public async AddChild(childId, parentId, index): Promise<void> {
         if (this.document.Contexts.get(childId)) {
             const newItem = this.document.Contexts.Add(childId);
             this.UpdateEntities.next(newItem);
@@ -57,7 +68,7 @@ export class SolidDataService extends IDataAdapter {
         this.UpdateEntities.next(entity);
     }
 
-    public async Remove(parentId: Id, index: number): Promise<void> {
+    public async RemoveChild(parentId: Id, index: number): Promise<void> {
         const parent = this.document.Contexts.get(parentId);
         const childId = parent.Children.Items[index];
         parent.Children.Remove(index);
@@ -95,7 +106,7 @@ export class SolidDataService extends IDataAdapter {
 
     private UpdateEntities = new Subject<ContextEntity>();
 
-    private Subscription$ = this.UpdateEntities.asObservable().pipe(
+    private saveDoc$  = this.UpdateEntities.asObservable().pipe(
         bufferTime(500),
         filter(arr => arr.length > 0),
         mergeMap(async entities => {
@@ -109,7 +120,7 @@ export class SolidDataService extends IDataAdapter {
             console.error(e);
             return never()
         })
-    ).subscribe();
+    );
 
 }
 

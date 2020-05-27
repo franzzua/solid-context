@@ -2,7 +2,7 @@ import {Component, HyperComponent} from "@hypertype/ui";
 import {IState, Template} from "./tree.template";
 import {ContextTree, CursorService, HierarchyService} from "@domain";
 import {Router} from "@hypertype/app";
-import {Injectable, map, Observable} from "@hypertype/core";
+import {tap, Injectable, map, Observable} from "@hypertype/core";
 
 @Injectable(true)
 @Component({
@@ -20,7 +20,8 @@ export class TreeComponent extends HyperComponent<IState> {
     }
 
     public State$: Observable<IState> = this.tree.State$.pipe(
-        map((tree) => ({tree}))
+        map((tree) => ({tree})),
+        tap(console.log),
     );
 
 

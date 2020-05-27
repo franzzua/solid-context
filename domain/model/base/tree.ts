@@ -1,6 +1,5 @@
 import {Id} from "./id";
 import {Leaf} from "./leaf";
-import {TreeCursor} from "./cursor";
 
 export interface ILeaf<TKey> {
     Id: TKey;

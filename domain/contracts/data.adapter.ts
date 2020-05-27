@@ -8,9 +8,9 @@ export abstract class IDataAdapter {
 
     public abstract async Create(context: ContextDbo): Promise<void>;
 
-    public abstract async Add(childId: Id, parentId: Id, index: number): Promise<void>;
+    public abstract async AddChild(childId: Id, parentId: Id, index: number): Promise<void>;
 
-    public abstract async Remove(parentId: Id, index: number): Promise<void>;
+    public abstract async RemoveChild(parentId: Id, index: number): Promise<void>;
 
     public abstract async ChangePosition(id: Id, from: {id: Id, index: number}, to: {id: Id, index: number}): Promise<void>;
 
@@ -19,4 +19,6 @@ export abstract class IDataAdapter {
     public abstract NewId(): Id;
 
     public abstract async Clear();
+
+    public abstract async Delete(ids: Id[]);
 }

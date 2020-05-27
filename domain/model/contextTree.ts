@@ -1,23 +1,20 @@
-import {DefaultData} from "../dbo/default";
-import {Id} from "./base/id";
+import {Id, Path} from "./base/id";
 import {Tree} from "./base/tree";
 import {Context} from "./context";
 import {ContextDbo, ContextState, RootDbo} from "../dbo/context.dbo";
 import {User} from "./user";
-import {debounceTime, Injectable, mapTo, Observable, ReplaySubject, shareReplay, utc} from "@hypertype/core";
-import {TreeCursor} from "./base/cursor";
-import {ContextCursor} from "./context.cursor";
+import {debounceTime, Injectable, mapTo, Observable, ReplaySubject, shareReplay, Subject} from "@hypertype/core";
 
 class LocalStorage {
     public static Add = (target, key, desc) => {
 
     }
 }
+
 @Injectable()
 export class ContextTree extends Tree<Context, ContextDbo, Id> {
 
     public IdFactory: () => Id;
-    public Cursor = new ContextCursor(this);
 
     constructor() {
         super();
@@ -25,7 +22,7 @@ export class ContextTree extends Tree<Context, ContextDbo, Id> {
 
     }
 
-    public async Send(to: string, content: string){
+    public async Send(to: string, content: string) {
     }
 
     Items: Map<Id, Context>;
@@ -43,7 +40,7 @@ export class ContextTree extends Tree<Context, ContextDbo, Id> {
     CurrentUser: User;
 
     public Load(dbo?: RootDbo) {
-        if (!dbo){
+        if (!dbo) {
             this.Root = null;
             this.UserMap = new Map();
             this.Items = new Map();
@@ -84,8 +81,8 @@ export class ContextTree extends Tree<Context, ContextDbo, Id> {
         this.Update.next();
     }
 
-    public ToDbo(): RootDbo{
-        return  {
+    public ToDbo(): RootDbo {
+        return {
             Root: this.Root.Id,
             Contexts: Array.from(this.Items.values())
                 .map(ctx => ctx.Value),
@@ -119,14 +116,23 @@ export class ContextTree extends Tree<Context, ContextDbo, Id> {
         this.Items.set(context.Id, context);
     }
 
-    Delete() {
-        this.Cursor.getParent().RemoveChild(this.Cursor.getCurrent());
-    }
+    // Delete() {
+    //     this.Cursor.getParent().RemoveChild(this.Cursor.getCurrent());
+    // }
 
 
-    switchCollapsed() {
-        const current = this.Cursor.getCurrent()
-        current.Collapsed = !current.Collapsed;
-        current.Update.next();
+    // switchCollapsed() {
+    //     const current = this.Cursor.getCurrent()
+    //     current.Collapsed = !current.Collapsed;
+    //     current.Update.next();
+    // }
+
+    private currentPathSubject$ = new ReplaySubject<Path>();
+    public CurrentPath$: Observable<Path> = this.currentPathSubject$.pipe(
+        shareReplay(1)
+    );
+
+    public SetActivePath(path: Path) {
+        this.currentPathSubject$.next(path);
     }
 }

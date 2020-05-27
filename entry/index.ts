@@ -21,4 +21,3 @@ const app =ApplicationBuilder
 }).build();
 
 init(app.get<Container>(Container));
-app.get<IApplication>(IApplication).Start();

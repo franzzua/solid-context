@@ -74,7 +74,6 @@ export abstract class Leaf<TValue extends ILeaf<TKey>, TKey = Id> {
         this.Value.Children.splice(to, 0, child);
     }
 
-    Collapsed: boolean = false;
     // protected MoveLeft(child: this) {
     //     const children = this.Children;
     //     children.indexOf(child);

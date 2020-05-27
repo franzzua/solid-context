@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "ttsc --watch",
-    "bundle:watch": "hypertype web --watch --run",
+    "server:watch": "hypertype web --watch --run",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

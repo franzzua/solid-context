@@ -1,26 +1,21 @@
 import {Component, HyperComponent, property, wire} from "@hypertype/ui";
 import {
     combineLatest,
-    debounceTime,
     distinctUntilChanged,
     filter,
-    first,
     Fn,
     Injectable,
     map,
-    mapTo,
-    merge,
     Observable,
     shareReplay,
     switchMap,
-    tap,
-    withLatestFrom
+    tap
 } from "@hypertype/core";
-import {Context, ContextTree, IDataAdapter, Path} from "@domain";
-import {ContextContentElement} from "./context-content.element";
+import {Context, ContextTree, Path} from "@domain";
+import {TextContentComponent} from "./text-content.component";
 
 
-customElements.define('context-content', ContextContentElement);
+customElements.define('context-content', TextContentComponent);
 
 @Injectable(true)
 @Component({
@@ -37,7 +32,10 @@ customElements.define('context-content', ContextContentElement);
             <div class="${`context-inner ${state.state.join(' ')}`}">
                 <div class="body">
                     <span class="arrow"></span>
-                    ${ContextContentElement.For(context, state.path, events.onContentChange(x => x.detail))}
+                    <ctx-text-content context=${state.context} 
+                                      active=${state.isSelected}
+                                      path=${state.path}
+                                      ></ctx-text-content>
                 </div>
                 <div class="children">
                 ${isCollapsed ? '' : context.Children.map(child =>
@@ -53,14 +51,17 @@ customElements.define('context-content', ContextContentElement);
 })
 export class ContextComponent extends HyperComponent<IState> {
 
-    constructor(private tree: ContextTree,
-                private dataAdapter: IDataAdapter) {
+    constructor(private tree: ContextTree) {
         super();
     }
 
 
     @property()
     public path$: Observable<Path>;
+
+    private Path$ = this.path$.pipe(
+        distinctUntilChanged(arrayEqual)
+    )
 
     private id$ = this.path$.pipe(
         map(ids => ids[ids.length - 1]),
@@ -69,29 +70,25 @@ export class ContextComponent extends HyperComponent<IState> {
     );
 
     private context$: Observable<Context> = this.id$.pipe(
-        switchMap(id => this.tree.Items.get(id).State$),
+        tap(console.log),
+        map(id => this.tree.Items.get(id)),
+        distinctUntilChanged(),
+        switchMap(context => context.State$),
         filter(Fn.Ib),
+        shareReplay(1)
     );
 
     private IsSelected$ = combineLatest([
-        this.tree.Cursor.Path$,
+        this.tree.CurrentPath$,
         this.path$,
     ]).pipe(
-        // tap(console.log),
-        map(([cursorPath, currentPath]) => {
-            if (!cursorPath || !currentPath)
-                return false;
-            return cursorPath.join(':') == currentPath.join(':');
-        }),
+        map(([cursorPath, currentPath]) => arrayEqual(cursorPath, currentPath)),
         distinctUntilChanged(),
-        // tap((sel)=>console.log(sel, this)),
         shareReplay(1),
     );
 
     public State$ = combineLatest([
-        this.context$,
-        this.path$,
-        this.IsSelected$,
+        this.context$, this.path$, this.IsSelected$,
     ]).pipe(
         map(([context, path, isSelected]) => ({
             context, isSelected, path,
@@ -101,54 +98,11 @@ export class ContextComponent extends HyperComponent<IState> {
                 (context.Collapsed) ? 'collapsed' : ''
             ] as any[],
         })),
+        tap(x => console.log('render', x.path.map(p => p.split('#').pop()))),
         filter(Fn.Ib)
     );
 
-    private Editor$ = combineLatest([this.Element$, this.context$]).pipe(
-        debounceTime(0),
-        map(([element, context]) => {
-            const editor = element.querySelector(`.editor`) as HTMLElement
-            return editor;
-        }),
-        filter(Fn.Ib),
-        first(),
-    );
 
-    public Events = {
-        onContentChange: async (content) => {
-            const context = await this.context$.pipe(first()).toPromise();
-            context.SetText(content);
-            await this.dataAdapter.ChangeContent(context.Id, content);
-        }
-    }
-
-    public Actions$ = merge(
-        combineLatest([this.IsSelected$, this.Editor$]).pipe(
-            tap(([isSelected, editor]) => {
-                if (isSelected && document.activeElement != editor) {
-                    editor.focus();
-                }
-            })
-        ),
-        this.Events$.pipe(
-            filter(e => e.type == 'click'),
-            withLatestFrom(this.path$),
-            tap(([, path]) => {
-                this.tree.Cursor.SetPath(path);
-            })
-        ),
-        this.Events$.pipe(
-            filter(e => e.type == 'text'),
-            map(e => e.args),
-            withLatestFrom(this.context$),
-            tap(([text, context]) => {
-                console.log(text);
-                context.SetText(text);
-            })
-        )
-    ).pipe(
-        mapTo(null)
-    )
 }
 
 interface IState {
@@ -156,4 +110,9 @@ interface IState {
     context: Context;
     path: Path;
     isSelected: boolean;
+}
+
+export function arrayEqual(arr1: any[], arr2: any[]) {
+    return arr1 && arr2 && arr1.length === arr2.length
+        && arr1.every((x, i) => x === arr2[i])
 }

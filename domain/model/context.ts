@@ -3,7 +3,7 @@ import {User} from "./user";
 import {Id, Path} from "./base/id";
 import {ContextTree} from "./contextTree";
 import {Leaf} from "./base/leaf";
-import {debounceTime, mapTo, Observable, ReplaySubject, shareReplay, startWith} from "@hypertype/core";
+import {Subject, debounceTime, tap, mapTo, Observable, ReplaySubject, shareReplay, startWith} from "@hypertype/core";
 
 const emailRegex = /^([\w\.\-\d]+@[\w\.\-\d]+\.[\w\.\-\d]+)&/;
 
@@ -22,7 +22,8 @@ export class Context extends Leaf<ContextDbo, Id> {
 
     Users: Map<User, RelationType> = new Map<User, RelationType>();
     protected tree: ContextTree;
-
+    public IsActive: boolean;
+    public Collapsed: boolean = false;
 
     constructor(tree: ContextTree, dbo: ContextDbo) {
         super();
@@ -48,25 +49,6 @@ export class Context extends Leaf<ContextDbo, Id> {
     public get Id() {
         return this.Value.Id;
     }
-    public set Id(value) {
-        this.tree.Items.delete(this.Value.Id);
-        this.tree.Items.set(value, this);
-        this.Parents.forEach(p => {
-            p.Value.Children.splice(p.Value.Children.indexOf(this.Value.Id), 1, value)
-        });
-        this.Children.forEach(p => {
-            p.Parents.delete(this.Value.Id);
-            p.Parents.set(value, this);
-        });
-        this.Value.Id = value;
-    }
-
-    // public get Path() {
-    //     if (!this.Parent)
-    //         return [this.Id];
-    //     return [...this.Parent.Path, this.Id];
-    // }
-
 
     private _pathToKey = {};
 
@@ -77,54 +59,58 @@ export class Context extends Leaf<ContextDbo, Id> {
         return this._pathToKey[str];
     }
 
-    public Move(from: Path, {parent: to, index}) {
-        const oldParentId = from[from.length - 1];
-        const newParentId = to[to.length - 1];
-        const oldParent = this.tree.Items.get(oldParentId);
-        const newParent = this.tree.Items.get(newParentId);
+    public Move(from: { id, index }, to: {id, index}) {
+        const oldParent = this.tree.Items.get(from.id);
+        const newParent = this.tree.Items.get(to.id);
         Object.keys(this._pathToKey).forEach(oldPath => {
-            const newPath = oldPath.replace(`:${oldParentId}:`, `:${newParentId}:`);
+            const newPath = oldPath.replace(`${from.id}`, `${to.id}`);
             this._pathToKey[newPath] = this._pathToKey[oldPath];
             delete this._pathToKey[oldPath];
         });
-        this._pathToKey[[...to, this.Id].join(':')] = this._pathToKey[[...from, this.Id].join(':')]
-        if (oldParent == newParent){
-            const oldIndex = oldParent.Children.indexOf(this);
-            oldParent.ChangeChildOrder(oldIndex, index);
+        // this._pathToKey[[...to, this.Id].join(':')] = this._pathToKey[[...from, this.Id].join(':')]
+        if (from.id == to.id){
+            oldParent.ChangeChildOrder(from.index, to.index);
         } else {
             oldParent.RemoveChild(this);
-            newParent.InsertAt(this, index);
+            newParent.InsertAt(this, to.index);
         }
-        this.Update.next();
     }
 
 
-    public Update = new ReplaySubject<void>(1);
-    public State$: Observable<Context> = this.Update.pipe(
+    public Update = new ReplaySubject<void>();
+    public State$: Observable<Context> = this.Update.asObservable().pipe(
         startWith(null),
-        debounceTime(0),
         mapTo(this),
-        // tap(console.log),
-        shareReplay(1),
+        shareReplay(1)
     );
 
     ChangeChildOrder(oldIndex: number, newIndex: number){
         super.ChangeChildOrder(oldIndex, newIndex);
-        this.Update.next();
+        this.Update.next(null);
+        console.log('update', this.Id);
     }
 
     RemoveChild(child: this) {
-        const index = this.Value.Children.indexOf(child.Id);
         super.RemoveChild(child);
-        this.Update.next();
+        this.Update.next(null);
+        console.log('update', this.Id);
     }
 
     InsertAt(child: Context, index) {
         super.InsertAt(child as any, index);
-        this.Update.next();
+        this.Update.next(null);
+        console.log('update', this.Id);
     }
 
-    Focus(path: Path) {
-        this.tree.Cursor.SetPath(path);
+    // Focus(path: Path) {
+    //     this.tree.SetActivePath(path);
+    // }
+
+
+    public GetAllChildrenRecursive(): Context[] {
+        return [
+            this,
+            ...this.Children.map(c => c.GetAllChildrenRecursive()).flat()
+        ]
     }
 }
