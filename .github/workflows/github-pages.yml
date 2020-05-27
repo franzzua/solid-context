@@ -56,3 +56,6 @@ jobs:
 
     - name: deploy to solid
       run: node publish.js
+      env:
+        SOLID_USERNAME: $SOLID_USERNAME
+        SOLID_PASSWORD: $SOLID_PASSWORD
