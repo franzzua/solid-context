@@ -1,8 +1,9 @@
 import {fromEvent, Injectable, merge, tap} from "@hypertype/core";
-import {ContextTree, CursorService, HierarchyService} from "@domain";
+import {Context, ContextTree, CursorService, HierarchyService} from "@domain";
 
 @Injectable()
 export class KeyboardHandler {
+    private copy: Context;
     constructor(
         private hierarchy: HierarchyService,
         private tree: ContextTree,
@@ -29,15 +30,15 @@ export class KeyboardHandler {
                 break;
             case 'ArrowLeft':
                 if (event.shiftKey && event.ctrlKey)
-                    this.hierarchy.MoveLeft();
+                    this.hierarchy.MoveLeft(false);
                 break;
             case 'ArrowRight':
                 if (event.shiftKey && event.ctrlKey)
-                    this.hierarchy.MoveRight();
+                    this.hierarchy.MoveRight(false);
                 break;
             case 'Tab':
                 event.preventDefault();
-                event.shiftKey ? this.hierarchy.MoveLeft() : this.hierarchy.MoveRight();
+                event.shiftKey ? this.hierarchy.MoveLeft() : this.hierarchy.MoveRight(false);
                 break;
             case 'Enter':
                 if (!event.shiftKey) {
@@ -50,6 +51,16 @@ export class KeyboardHandler {
                     this.hierarchy.DeleteCurrent();
                     event.preventDefault();
                 }
+                break;
+            case 'C':
+                if (event.ctrlKey)
+                    this.copy = this.cursor.getCurrent();
+                event.preventDefault();
+                break;
+            case 'V':
+                if (event.ctrlKey)
+                    this.hierarchy.Add(this.copy);
+                event.preventDefault();
                 break;
             case '.':
             case 'ю':

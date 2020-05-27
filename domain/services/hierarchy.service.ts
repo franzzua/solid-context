@@ -14,58 +14,67 @@ export class HierarchyService {
 
     }
 
-    private async MoveCurrent(target: { parent: Path, index: number }) {
+    private async MoveCurrent(target: { parent: Path, index: number }, copy = false) {
         if (!target)
             return;
         const child = this.tree.Items.get(this.Cursor.getCurrent().Id);
         const parent = this.Cursor.getParent();
-        await this.dataAdapter.ChangePosition(child.Id, {
-            id: parent.Id,
-            index: parent.Children.indexOf(child)
-        }, {
-            id: target.parent[target.parent.length - 1],
-            index: target.index
-        });
-        child.Move({
-            id: parent.Id,
-            index: parent.Children.indexOf(child)
-        }, {
-            id: target.parent[target.parent.length - 1],
-            index: target.index
-        });
+        if (copy) {
+            await this.dataAdapter.AddChild(child.Id,
+                target.parent[target.parent.length - 1],
+                 target.index);
+            parent.AddChild(child, target.index);
+        }else {
+            await this.dataAdapter.ChangePosition(child.Id, {
+                id: parent.Id,
+                index: parent.Children.indexOf(child)
+            }, {
+                id: target.parent[target.parent.length - 1],
+                index: target.index
+            });
+            child.Move({
+                id: parent.Id,
+                index: parent.Children.indexOf(child)
+            }, {
+                id: target.parent[target.parent.length - 1],
+                index: target.index
+            });
+        }
         this.Cursor.SetPath([...target.parent, child.Id]);
     }
 
-    public async Add() {
+    public async Add(context: Context = null) {
         const path = this.Cursor.getParentPath();
         const index = this.Cursor.getIndex() + 1;
-        const dbo = {
-            Content: [{Text: ''}],
-            Children: [],
-            Id: this.dataAdapter.NewId(),
-            Time: utc().toISO()
+        if (!context) {
+            const dbo = {
+                Content: [{Text: ''}],
+                Children: [],
+                Id: this.dataAdapter.NewId(),
+                Time: utc().toISO()
+            }
+            context = new Context(this.tree, dbo);
+            await this.dataAdapter.Create(dbo);
         }
         const parent = this.Cursor.getCurrent(path);
-        const context = new Context(this.tree, dbo);
         this.tree.Add(context);
         parent.InsertAt(context, index);
         parent.Update.next();
         this.Cursor.SetPath([
             ...path, context.Id
         ])
-        await this.dataAdapter.Create(dbo);
         await this.dataAdapter.AddChild(context.Id, parent.Id, index);
         return context;
     }
 
-    public async MoveLeft() {
+    public async MoveLeft(copy = false) {
         const target = this.Cursor.getLeftMove();
-        await this.MoveCurrent(target);
+        await this.MoveCurrent(target, copy);
     }
 
-    public async MoveRight() {
+    public async MoveRight(copy = false) {
         const target = this.Cursor.getRightMove();
-        await this.MoveCurrent(target);
+        await this.MoveCurrent(target, copy);
     };
 
     public async MoveDown() {

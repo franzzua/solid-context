@@ -70,7 +70,6 @@ export class ContextComponent extends HyperComponent<IState> {
     );
 
     private context$: Observable<Context> = this.id$.pipe(
-        tap(console.log),
         map(id => this.tree.Items.get(id)),
         distinctUntilChanged(),
         switchMap(context => context.State$),
@@ -98,7 +97,6 @@ export class ContextComponent extends HyperComponent<IState> {
                 (context.Collapsed) ? 'collapsed' : ''
             ] as any[],
         })),
-        tap(x => console.log('render', x.path.map(p => p.split('#').pop()))),
         filter(Fn.Ib)
     );
 

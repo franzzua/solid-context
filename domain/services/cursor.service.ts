@@ -25,7 +25,6 @@ export class CursorService {
             return;
         // console.log(path);
         this.Path = path;
-        console.log(path.map(x => x.toString().split('#').pop()));
         this.tree.SetActivePath(this.Path);
     }
 

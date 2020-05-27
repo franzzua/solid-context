@@ -12,16 +12,12 @@ import {tap, Injectable, map, Observable} from "@hypertype/core";
 })
 export class TreeComponent extends HyperComponent<IState> {
 
-    constructor(private tree: ContextTree,
-                private hierarchy: HierarchyService,
-                private cursor: CursorService,
-                private router: Router) {
+    constructor(private tree: ContextTree) {
         super();
     }
 
     public State$: Observable<IState> = this.tree.State$.pipe(
         map((tree) => ({tree})),
-        tap(console.log),
     );
 
 

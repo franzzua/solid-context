@@ -1,17 +1,16 @@
 import {ContentService, Context, ContextTree, CursorService, Path} from "@domain";
 import {
+    distinctUntilChanged,
+    switchMap,
     withLatestFrom,
+    of,
     filter,
-    fromEvent,
     map,
     Injectable,
     mapTo,
     merge,
     Observable,
-    Subject,
     tap,
-    combineLatest,
-    distinctUntilChanged, shareReplay
 } from "@hypertype/core";
 import {Component, HyperComponent, IEventHandler, property} from "@hypertype/ui";
 
@@ -22,7 +21,6 @@ import {Component, HyperComponent, IEventHandler, property} from "@hypertype/ui"
         <div contenteditable class="editor"
              oninput=${events.input(x => x.target.innerText)}
              onfocus=${events.focus(x => void 0)}>
-            ${state}
         </div>
     `,
     style: `ctx-text-content { cursor: text; flex: 1; }`
@@ -45,9 +43,11 @@ export class TextContentComponent extends HyperComponent<string, IEvents> {
     @property()
     private active$: Observable<boolean>;
 
+    private lastTextEdited;
 
     public Events: IEvents = {
         input: async text => {
+            this.lastTextEdited = text;
             await this.content.SetContent(this.context, text);
         },
         focus: async () => {
@@ -55,15 +55,25 @@ export class TextContentComponent extends HyperComponent<string, IEvents> {
         }
     }
 
-    public State$ = this.context$.pipe(
-        map(context => context?.toString())
-    )
+    public State$ = of(null);
 
     public Actions$ = merge(
+        this.context$.pipe(
+            switchMap(c => c.State$),
+            map(context => context?.toString()),
+            filter(x => x!=this.lastTextEdited),
+            distinctUntilChanged(),
+            withLatestFrom(this.select<HTMLElement>('[contenteditable]')),
+            tap(([text,element]) => {
+                element.innerHTML = text;
+            })
+        ),
         this.active$.pipe(
+            distinctUntilChanged(),
             filter(x => x == true),
             withLatestFrom(this.select<HTMLElement>('[contenteditable]')),
             tap(([_, element]) => {
+
                 element.focus()
             })
         )

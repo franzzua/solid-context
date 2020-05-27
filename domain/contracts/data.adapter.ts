@@ -21,4 +21,5 @@ export abstract class IDataAdapter {
     public abstract async Clear();
 
     public abstract async Delete(ids: Id[]);
+
 }

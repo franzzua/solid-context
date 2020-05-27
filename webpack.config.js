@@ -10,7 +10,9 @@ module.exports = {
             'node-fetch': `${__dirname}/node_modules/solidocity/dist/esm/impl/fetch.js`,
             'stream': `${__dirname}/node_modules/solidocity/dist/esm/impl/fetch.js`,
             'solid-auth-client$': `${__dirname}/node_modules/solid-auth-client/browser/index.js`,
-            '@app$': `${__dirname}/dist/esm/app/index.js`
+            '@app$': `${__dirname}/dist/esm/app/index.js`,
+            '@domain$': `${__dirname}/dist/esm/domain/index.js`,
+            '@infr$': `${__dirname}/dist/esm/infr/index.js`,
         }
     },
     node: false

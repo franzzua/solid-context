@@ -87,19 +87,16 @@ export class Context extends Leaf<ContextDbo, Id> {
     ChangeChildOrder(oldIndex: number, newIndex: number){
         super.ChangeChildOrder(oldIndex, newIndex);
         this.Update.next(null);
-        console.log('update', this.Id);
     }
 
     RemoveChild(child: this) {
         super.RemoveChild(child);
         this.Update.next(null);
-        console.log('update', this.Id);
     }
 
     InsertAt(child: Context, index) {
         super.InsertAt(child as any, index);
         this.Update.next(null);
-        console.log('update', this.Id);
     }
 
     // Focus(path: Path) {
@@ -112,5 +109,10 @@ export class Context extends Leaf<ContextDbo, Id> {
             this,
             ...this.Children.map(c => c.GetAllChildrenRecursive()).flat()
         ]
+    }
+
+    AddChild(child: Context, index: number) {
+        this.Value.Children.push(child.Id);
+        this.Update.next(null);
     }
 }

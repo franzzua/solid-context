@@ -29,6 +29,8 @@
     "@types/luxon": "^1.24.0",
     "@types/node": "^14.0.4",
     "jest": "^26.0.1",
+    "solid-auth-cli": "^1.0.14",
+    "solid-file-client": "^1.0.5",
     "symbol-observable": "^1.2.0",
     "ts-jest": "^26.0.0",
     "ttypescript": "^1.5.10",
