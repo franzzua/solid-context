@@ -7,6 +7,8 @@ const password = process.env['SOLID_PASSWORD'] || '';
 const idp = process.env['SOLID_IDP'] || 'https://inrupt.net';
 const target = process.env['SOLID_TARGET'] || 'https://context.inrupt.net';
 
+console.log('deploy', username, '*'.repeat(password.length), idp, target);
+
 async function publish() {
     await auth.login({
         idp: idp,
