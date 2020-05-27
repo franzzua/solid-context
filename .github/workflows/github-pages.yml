@@ -27,24 +27,18 @@ jobs:
     - name: Setup Node.js environment
       uses: actions/setup-node@v1.4.2
       with:
-        # Set always-auth in npmrc
-        # always-auth: # optional, default is false
-        # Version Spec of the version to use.  Examples: 10.x, 10.15.1, >=10.15.0
         node-version: 12.16 # optional, default is 10.x
-        # Optional registry to set up for auth. Will set the registry in a project level .npmrc and .yarnrc file, and set up auth to read in from env.NODE_AUTH_TOKEN
-        #registry-url: # optional
-        # Optional scope for authenticating against scoped registries
-        #scope: # optional
-        # Deprecated. Use node-version instead. Will not be supported after October 1, 2019
-        #version: # optional
+
 
     # Runs a single command using the runners shell
     - name: Install deps
-      run: npm i
+      run: |
+        npm i pnpm -g
+        pnpm i
       
     # Runs a single command using the runners shell
     - name: Build typescript
-      run: npx tsc
+      run: npx ttsc
 
     # Runs a set of commands using the runners shell
     - name: Bundle production
