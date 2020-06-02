@@ -52,9 +52,25 @@ export class ContextTree extends Tree<Context, ContextDbo, Id> {
         // const contextDboTree = treeMap<ContextDbo>(mainContextDbo, item => dbo.Contexts
         //     .filter(c => c.Parents.includes(item.Id)));
         // this.Root = contextDboTree.map(t => new Context(this, t));
+        if (!this.Items) {
+            this.Items = new Map(dbo.Contexts
+                .map(dbo => [dbo.Id, new Context(this, dbo)]));
+        }else{
 
-        this.Items = new Map(dbo.Contexts
-            .map(dbo => [dbo.Id, new Context(this, dbo)]));
+            for (let x of this.Items.keys()){
+                if (dbo.Contexts.every(c => c.Id != x)){
+                    this.Items.delete(x);
+                }
+            }
+            for (let x of dbo.Contexts) {
+                const existed = this.Items.get(x.Id);
+                if (!existed){
+                    this.Items.set(x.Id, new Context(this, x))
+                }else{
+                    existed.Value = x;
+                }
+            }
+        }
 
         this.Root = this.Items.get(dbo.Root);
 
@@ -79,6 +95,8 @@ export class ContextTree extends Tree<Context, ContextDbo, Id> {
             // inbox.LoadEmails();
         }
         this.Update.next();
+        [...this.Items.values()].forEach(x => x.Update.next());
+        console.log('reload tree');
     }
 
     public ToDbo(): RootDbo {

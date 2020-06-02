@@ -20,12 +20,12 @@ export class HierarchyService {
         const child = this.tree.Items.get(this.Cursor.getCurrent().Id);
         const parent = this.Cursor.getParent();
         if (copy) {
-            await this.dataAdapter.AddChild(child.Id,
+            this.dataAdapter.AddChild(child.Id,
                 target.parent[target.parent.length - 1],
                  target.index);
             parent.AddChild(child, target.index);
         }else {
-            await this.dataAdapter.ChangePosition(child.Id, {
+            this.dataAdapter.ChangePosition(child.Id, {
                 id: parent.Id,
                 index: parent.Children.indexOf(child)
             }, {
@@ -47,17 +47,17 @@ export class HierarchyService {
         const path = this.Cursor.getParentPath();
         const index = this.Cursor.getIndex() + 1;
         if (!context) {
-            const dbo = {
+            const dbo = await this.dataAdapter.Create({
                 Content: [{Text: ''}],
+                Id: undefined,
                 Children: [],
-                Id: this.dataAdapter.NewId(),
                 Time: utc().toISO()
-            }
+            });
             context = new Context(this.tree, dbo);
-            await this.dataAdapter.Create(dbo);
         }
         const parent = this.Cursor.getCurrent(path);
         this.tree.Add(context);
+        console.log(parent.Id, context.Id, index);
         parent.InsertAt(context, index);
         parent.Update.next();
         this.Cursor.SetPath([

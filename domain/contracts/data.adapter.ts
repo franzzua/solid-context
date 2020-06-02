@@ -1,12 +1,16 @@
 import {ContextDbo, RootDbo} from "../dbo/context.dbo";
 import {Id} from "../model/base/id";
-import {Context} from "../model/context";
+import {Observable} from "@hypertype/core";
 
 export abstract class IDataAdapter {
 
+    public Changes$: Observable<RootDbo>;
+
     public abstract async Load(): Promise<RootDbo>;
 
-    public abstract async Create(context: ContextDbo): Promise<void>;
+    public abstract async Init();
+
+    public abstract async Create(context: ContextDbo): Promise<ContextDbo>;
 
     public abstract async AddChild(childId: Id, parentId: Id, index: number): Promise<void>;
 
@@ -16,7 +20,7 @@ export abstract class IDataAdapter {
 
     public abstract async ChangeContent(id: Id, content: any): Promise<void>;
 
-    public abstract NewId(): Id;
+    // public abstract NewId(): Id;
 
     public abstract async Clear();
 

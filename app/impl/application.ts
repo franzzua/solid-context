@@ -13,7 +13,12 @@ export class Application extends IApplication{
 
     public async Start(){
         await this.appAuthService.GetSession();
-        const data = await this.dataService.Load();
-        this.tree.Load(data);
+        await this.dataService.Init();
+        this.dataService.Changes$.subscribe(
+            async change => {
+                const data = await this.dataService.Load();
+                this.tree.Load(data);
+            }
+        )
     }
 }

@@ -7,7 +7,7 @@ dependencies:
   luxon: 1.24.1
   rdf-namespaces: 1.8.0
   solid-auth-client: 2.4.1
-  solidocity: 1.1.4_rdf-namespaces@1.8.0
+  solidocity: 1.1.5_rdf-namespaces@1.8.0
 devDependencies:
   '@hypertype/tools': 3.3.17
   '@types/jest': 25.2.3
@@ -5349,7 +5349,7 @@ packages:
       browserfs: ^1.4.3
     resolution:
       integrity: sha512-uYOgiUstLDXAeyAqIfOeI/0jmQ9S7ZpWpE5+8rKScgt3HXUOcAk+PXMkqx4BUfSMfVO84onsDzbHKWjyxXaMqQ==
-  /solidocity/1.1.4_rdf-namespaces@1.8.0:
+  /solidocity/1.1.5_rdf-namespaces@1.8.0:
     dependencies:
       node-libs-browser: 2.2.1
       rdf-namespaces: 1.8.0
@@ -5361,7 +5361,7 @@ packages:
     peerDependencies:
       rdf-namespaces: ^1.8.0
     resolution:
-      integrity: sha512-9HiypmElMq734Ilsu8FCHphspualL8k0cLdtLcUKaYw5n5o20ATZXo6viFcJxwVtx+OJAVEtswaJu6QkAhBDzQ==
+      integrity: sha512-gxV40nHEmaYnR0eyyWgFEtffg8fQkwFH8lZTDSoRDmD3ynBOjf3BjxjgWLv/9q/PEtoCiNYi8n6LlqLaKJ+Z+Q==
   /source-map-resolve/0.5.3:
     dependencies:
       atob: 2.1.2
@@ -6286,7 +6286,7 @@ specifiers:
   solid-auth-cli: ^1.0.14
   solid-auth-client: ^2.4.1
   solid-file-client: ^1.0.5
-  solidocity: ^1.1.4
+  solidocity: ^1.1.5
   symbol-observable: ^1.2.0
   ts-jest: ^26.0.0
   ttypescript: ^1.5.10

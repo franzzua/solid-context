@@ -1,4 +1,4 @@
-import {Injectable} from "@hypertype/core";
+import {first, Injectable} from "@hypertype/core";
 import {Context, Path} from "..";
 import {ContextTree} from "../model/contextTree";
 import * as path from "path";
@@ -7,7 +7,9 @@ import * as path from "path";
 export class CursorService {
 
     constructor(private tree: ContextTree) {
-        this.tree.State$.subscribe(s => {
+        this.tree.State$.pipe(
+            first()
+        ).subscribe(s => {
             this.SetPath([this.tree.Root.Id]);
         });
     }
@@ -23,7 +25,7 @@ export class CursorService {
     SetPath(path: Path) {
         if (path == null || this.isCurrentPath(path))
             return;
-        // console.log(path);
+        console.log('path', path);
         this.Path = path;
         this.tree.SetActivePath(this.Path);
     }
@@ -105,7 +107,6 @@ export class CursorService {
 
     Down() {
         this.SetPath(this.GetDown());
-        console.log(this.Path);
     }
 
 
@@ -136,6 +137,8 @@ export class CursorService {
     //#enregion
 
     getParentPath(path: Path = this.Path): Path {
+        if (this.isRoot(path))
+            return path;
         return path.slice(0, -1)
     }
     getParent(path: Path = this.Path): Context {

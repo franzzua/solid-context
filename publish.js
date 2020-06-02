@@ -17,6 +17,7 @@ async function publish() {
     })
 
     await fc.copyFile(`file://${__dirname}/dist/index.html`, `${target}/index.html`);
+    await fc.copyFile(`file://${__dirname}/dist/index.html`, `${target}/tree/index.html`);
     await fc.copyFile(`file://${__dirname}/dist/index.js`, `${target}/index.js`);
 }
 

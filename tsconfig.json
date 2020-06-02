@@ -34,6 +34,9 @@
       ],
       "solid-auth-cli": [
         "solid-auth-client"
+      ],
+      "solidocity": [
+        "../solidocity"
       ]
     },
     "plugins": [

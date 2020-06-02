@@ -13,6 +13,7 @@ module.exports = {
             '@app$': `${__dirname}/dist/esm/app/index.js`,
             '@domain$': `${__dirname}/dist/esm/domain/index.js`,
             '@infr$': `${__dirname}/dist/esm/infr/index.js`,
+            'solidocity': path.resolve(__dirname, '../solidocity/dist/esm/index.js')
         }
     },
     node: false
