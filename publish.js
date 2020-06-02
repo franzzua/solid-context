@@ -16,9 +16,10 @@ async function publish() {
         password: password
     })
 
-    await fc.copyFile(`file://${__dirname}/dist/index.html`, `${target}/index.html`);
-    await fc.copyFile(`file://${__dirname}/dist/index.html`, `${target}/tree/index.html`);
-    await fc.copyFile(`file://${__dirname}/dist/index.js`, `${target}/index.js`);
+    await fc.copyFile(`file://${__dirname}/dist/index.html`, `${target}/app/index.html`);
+    await fc.copyFile(`file://${__dirname}/dist/tree/index.html`, `${target}/app/index.html`);
+    await fc.copyFile(`file://${__dirname}/dist/index.js`, `${target}/app/index.js`);
+    await fc.copyAclFileForItem(`${target}/profile/card.acl`, `${target}/app/.acl`);
 }
 
 publish().catch(console.error);
