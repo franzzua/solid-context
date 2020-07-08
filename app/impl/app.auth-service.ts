@@ -11,9 +11,9 @@ export class AppAuthService {
 
     public async GetSession(): Promise<any> {
 
-        let popupUri = 'https://inrupt.net/login';
+        let popupUri = 'https://fransua.solid.community/common/popup.html';
         return (await auth.currentSession())
-            ?? await auth.login(`https://inrupt.net`,{
+            ?? await auth.login(`https://fransua.solid.community`,{
             clientName: 'My Example',
         });
     }

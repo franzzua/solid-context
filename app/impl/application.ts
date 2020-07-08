@@ -1,6 +1,6 @@
 import {Injectable} from "@hypertype/core";
 import {IAppAuthService, IApplication} from "@app";
-import {ContextTree, IDataActions} from "@domain";
+import {ContextTree, IDataActions, RootDbo} from "@domain";
 import {IDataAdapter} from "@infr/proxies/IDataAdapter";
 
 @Injectable()
@@ -8,7 +8,7 @@ export class Application extends IApplication{
 
     constructor(private appAuthService: IAppAuthService,
                 private tree: ContextTree,
-                private dataService: IDataAdapter<IDataActions>) {
+                private dataService: IDataAdapter<IDataActions, RootDbo>) {
         super();
     }
 

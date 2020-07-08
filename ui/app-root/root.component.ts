@@ -4,7 +4,7 @@ import {Router, RouterState} from "@hypertype/app";
 import {IAppAuthService, IApplication} from "@app";
 import {KeyboardHandler} from "../handlers/keyboard.handler";
 import {IDataAdapter} from "@infr/proxies/IDataAdapter";
-import {IDataActions} from "@domain";
+import {IDataActions, RootDbo} from "@domain";
 
 const pages = {
     whiteboard(state: RouterState) {
@@ -38,7 +38,7 @@ export class RootComponent extends HyperComponent<RouterState> {
 
     constructor(private router: Router,
                 private application: IApplication,
-                private dataService: IDataAdapter<IDataActions>,
+                private dataService: IDataAdapter<IDataActions, RootDbo>,
                 private keyboardHanlder: KeyboardHandler,
                 private appAuthService: IAppAuthService) {
         super();

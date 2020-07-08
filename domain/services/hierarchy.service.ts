@@ -1,7 +1,7 @@
 import {Injectable, utc} from "@hypertype/core";
 import {ContextTree} from "../model/contextTree";
 import {CursorService} from "./cursor.service";
-import {IDataActions} from "../contracts";
+import {IDataActions, RootDbo} from "../contracts";
 import {Context} from "../model/context";
 import {Path} from "..";
 import {IDataAdapter} from "@infr/proxies/IDataAdapter";
@@ -9,7 +9,7 @@ import {IDataAdapter} from "@infr/proxies/IDataAdapter";
 @Injectable()
 export class HierarchyService {
     constructor(private tree: ContextTree,
-                private dataAdapter: IDataAdapter<IDataActions>,
+                private dataAdapter: IDataAdapter<IDataActions, RootDbo>,
                 private Cursor: CursorService) {
 
     }
