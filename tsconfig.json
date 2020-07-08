@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
-    "target": "es6",
+    "target": "ES2016",
     "sourceMap": true,
     "outDir": "./dist/esm",
     "declaration": true,
@@ -23,6 +23,12 @@
       "@infr": [
         "./infr"
       ],
+      "@infr/*": [
+        "./infr/*"
+      ],
+      "@domain/*": [
+        "./domain/*"
+      ],
       "@domain": [
         "./domain"
       ],
@@ -32,8 +38,8 @@
       "@ui": [
         "./ui"
       ],
-      "solid-auth-cli": [
-        "solid-auth-client"
+      "solidocity": [
+        "../solidocity"
       ]
     },
     "plugins": [

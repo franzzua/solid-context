@@ -15,12 +15,9 @@ import {Injectable} from "@hypertype/core";
 @document()
 export class ContextDocument extends Document {
 
-    constructor(uri) {
-        super(uri);
-    }
-
     @entitySet(ContextEntity, {isArray: true})
     public Contexts: EntitySet<ContextEntity>;
+
 }
 
 @collection()

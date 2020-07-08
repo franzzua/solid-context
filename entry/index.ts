@@ -1,11 +1,10 @@
 import {init} from "@hypertype/ui";
-import {ContextContainer} from "./container";
 import {ApplicationBuilder} from "@hypertype/app";
 import {UIContainer} from "../ui/container";
 import {Container} from "@hypertype/core";
 import {AppContainer, IApplication} from "@app";
 import {DomainContainer} from "@domain";
-import {InfrContainer} from "@infr";
+import {InfrContainer} from "@infr/container";
 
 const app =ApplicationBuilder
     .withInfrustructure(DomainContainer)
@@ -15,7 +14,7 @@ const app =ApplicationBuilder
     .withRouter({
     routes: [
         {name: 'base', path: '/', forwardTo: 'tree'},
-        {name: 'tree', path: '/tree', }
+        {name: 'tree', path: '/context', }
     ],
     options: null
 }).build();

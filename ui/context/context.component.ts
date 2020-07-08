@@ -15,7 +15,7 @@ import {Context, ContextTree, Path} from "@domain";
 import {TextContentComponent} from "./text-content.component";
 
 
-customElements.define('context-content', TextContentComponent);
+customElements.define('context-content', TextContentComponent as any);
 
 @Injectable(true)
 @Component({

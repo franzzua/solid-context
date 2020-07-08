@@ -25,7 +25,6 @@ export class CursorService {
     SetPath(path: Path) {
         if (path == null || this.isCurrentPath(path))
             return;
-        console.log('path', path);
         this.Path = path;
         this.tree.SetActivePath(this.Path);
     }

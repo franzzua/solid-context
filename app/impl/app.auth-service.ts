@@ -1,8 +1,6 @@
 import {Injectable} from "@hypertype/core";
-import {ISession, useAuth} from "solidocity";
 import * as auth from "solid-auth-client";
 
-const clientAuth = useAuth(auth);
 
 @Injectable()
 export class AppAuthService {
@@ -11,9 +9,11 @@ export class AppAuthService {
 
     }
 
-    public async GetSession(): Promise<ISession> {
-        return (await clientAuth.currentSession())
-            ?? await clientAuth.login('https://fransua.inrupt.net',{
+    public async GetSession(): Promise<any> {
+
+        let popupUri = 'https://inrupt.net/login';
+        return (await auth.currentSession())
+            ?? await auth.login(`https://inrupt.net`,{
             clientName: 'My Example',
         });
     }

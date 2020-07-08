@@ -1,15 +1,15 @@
 import {Injectable, utc} from "@hypertype/core";
 import {ContextTree} from "../model/contextTree";
 import {CursorService} from "./cursor.service";
-import {IDataAdapter} from "../contracts";
+import {IDataActions} from "../contracts";
 import {Context} from "../model/context";
-import {child} from "rdf-namespaces/dist/contact";
 import {Path} from "..";
+import {IDataAdapter} from "@infr/proxies/IDataAdapter";
 
 @Injectable()
 export class HierarchyService {
     constructor(private tree: ContextTree,
-                private dataAdapter: IDataAdapter,
+                private dataAdapter: IDataAdapter<IDataActions>,
                 private Cursor: CursorService) {
 
     }
@@ -20,12 +20,12 @@ export class HierarchyService {
         const child = this.tree.Items.get(this.Cursor.getCurrent().Id);
         const parent = this.Cursor.getParent();
         if (copy) {
-            this.dataAdapter.AddChild(child.Id,
+            this.dataAdapter.Actions.AddChild(child.Id,
                 target.parent[target.parent.length - 1],
-                 target.index);
+                target.index);
             parent.AddChild(child, target.index);
-        }else {
-            this.dataAdapter.ChangePosition(child.Id, {
+        } else {
+            this.dataAdapter.Actions.ChangePosition(child.Id, {
                 id: parent.Id,
                 index: parent.Children.indexOf(child)
             }, {
@@ -47,7 +47,7 @@ export class HierarchyService {
         const path = this.Cursor.getParentPath();
         const index = this.Cursor.getIndex() + 1;
         if (!context) {
-            const dbo = await this.dataAdapter.Create({
+            const dbo = await this.dataAdapter.Actions.Create({
                 Content: [{Text: ''}],
                 Id: undefined,
                 Children: [],
@@ -57,13 +57,12 @@ export class HierarchyService {
         }
         const parent = this.Cursor.getCurrent(path);
         this.tree.Add(context);
-        console.log(parent.Id, context.Id, index);
         parent.InsertAt(context, index);
         parent.Update.next();
         this.Cursor.SetPath([
             ...path, context.Id
         ])
-        await this.dataAdapter.AddChild(context.Id, parent.Id, index);
+        this.dataAdapter.Actions.AddChild(context.Id, parent.Id, index);
         return context;
     }
 
@@ -92,9 +91,24 @@ export class HierarchyService {
         const parent = this.Cursor.getParent();
         const index = parent.Children.indexOf(current);
         parent.RemoveChild(current);
-        await this.dataAdapter.RemoveChild(parent.Id, index);
-        if(current.Parents.size == 0){
-            await this.dataAdapter.Delete(current.GetAllChildrenRecursive().map(c => c.Id));
+        if (!parent.Value.Children.length) {
+            this.Cursor.SetPath(this.Cursor.getParentPath())
+        } else if (index < parent.Value.Children.length) {
+            const id = parent.Value.Children[index];
+            this.Cursor.SetPath([
+                ...this.Cursor.getParentPath(),
+                id
+            ]);
+        }else {
+            const id = parent.Value.Children[index - 1];
+            this.Cursor.SetPath([
+                ...this.Cursor.getParentPath(),
+                id
+            ]);
+        }
+        await this.dataAdapter.Actions.RemoveChild(parent.Id, index);
+        if (current.Parents.size == 0) {
+            await this.dataAdapter.Actions.Delete(current.GetAllChildrenRecursive().map(c => c.Id));
         }
     }
 

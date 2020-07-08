@@ -1,18 +1,19 @@
 import {ContextTree} from "../model/contextTree";
 import {Injectable} from "@hypertype/core";
 import {Context} from "../model/context";
-import {IDataAdapter} from "../contracts";
+import {IDataAdapter} from "@infr/proxies/IDataAdapter";
+import {IDataActions} from "@domain/contracts";
 
 @Injectable()
 export class ContentService {
     constructor(private tree: ContextTree,
-                private dataAdapter: IDataAdapter) {
+                private dataAdapter: IDataAdapter<IDataActions>) {
 
     }
 
     public async SetContent(context: Context, content: string){
         context.SetText(content);
-        await this.dataAdapter.ChangeContent(context.Id, content);
+        await this.dataAdapter.Actions.ChangeContent(context.Id, content);
     }
 
 

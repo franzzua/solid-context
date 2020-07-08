@@ -4,8 +4,11 @@
   "main": "index.js",
   "scripts": {
     "build": "ttsc --watch",
-    "server:watch": "hypertype web --watch --run",
+    "server:watch": "hypertype web --watch",
+    "worker:watch": "hypertype worker --watch",
     "bundle:prod": "hypertype web --prod",
+    "bundle": "hypertype web",
+    "server": "http-server ./dist -p 3200",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -41,6 +44,10 @@
       "index": "./dist/esm/entry/index.js",
       "html": "./entry/index.html",
       "type": "server"
+    },
+    "worker": {
+      "index": "./dist/esm/entry/worker.js",
+      "type": "worker"
     }
   }
 }

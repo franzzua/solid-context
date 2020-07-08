@@ -2,8 +2,9 @@ import {Component, HyperComponent, wire} from "@hypertype/ui";
 import {Injectable} from "@hypertype/core";
 import {Router, RouterState} from "@hypertype/app";
 import {IAppAuthService, IApplication} from "@app";
-import {IDataAdapter} from "@domain";
 import {KeyboardHandler} from "../handlers/keyboard.handler";
+import {IDataAdapter} from "@infr/proxies/IDataAdapter";
+import {IDataActions} from "@domain";
 
 const pages = {
     whiteboard(state: RouterState) {
@@ -37,7 +38,7 @@ export class RootComponent extends HyperComponent<RouterState> {
 
     constructor(private router: Router,
                 private application: IApplication,
-                private dataService: IDataAdapter,
+                private dataService: IDataAdapter<IDataActions>,
                 private keyboardHanlder: KeyboardHandler,
                 private appAuthService: IAppAuthService) {
         super();
@@ -59,7 +60,7 @@ export class RootComponent extends HyperComponent<RouterState> {
             await this.application.Start();
         },
         clear: async () => {
-            await this.dataService.Clear();
+            await this.dataService.Actions.Clear();
         }
     }
 }

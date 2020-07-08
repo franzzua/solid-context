@@ -5,5 +5,4 @@ export const Schema = {
     content: `${uri}#content`,
     children: `${uri}#children`,
     date: `${uri}#date`,
-
 }

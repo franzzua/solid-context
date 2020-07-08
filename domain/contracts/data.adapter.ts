@@ -2,13 +2,13 @@ import {ContextDbo, RootDbo} from "../dbo/context.dbo";
 import {Id} from "../model/base/id";
 import {Observable} from "@hypertype/core";
 
-export abstract class IDataAdapter {
 
-    public Changes$: Observable<RootDbo>;
+
+export abstract class IDataActions {
 
     public abstract async Load(): Promise<RootDbo>;
 
-    public abstract async Init();
+    public abstract async Init(session);
 
     public abstract async Create(context: ContextDbo): Promise<ContextDbo>;
 
