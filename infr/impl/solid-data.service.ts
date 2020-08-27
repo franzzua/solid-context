@@ -75,12 +75,16 @@ export class SolidDataService implements IDataActions {
     }
 
 
-    private getDocument() {
+    private getDocument(id?: string) {
+        if (id){
+            const  docId = id.split('#')[0];
+            return this.collection.ContextDocuments.Documents.find(x => x.URI == docId);
+        }
         return this.collection.ContextDocuments.Documents[0];
     }
 
     public async Create(context: ContextDbo): Promise<ContextDbo> {
-        const newItem = this.getDocument().Contexts.Add();
+        const newItem = this.getDocument(context.Id).Contexts.Add();
         newItem.fromDTO(context);
         this.UpdateEntities(newItem);
         return newItem.toDTO();
@@ -88,7 +92,7 @@ export class SolidDataService implements IDataActions {
 
     public async Delete(ids: Id[]): Promise<any> {
         for (const id of ids) {
-            const entity = this.getDocument().Contexts.get(id);
+            const entity = this.getDocument(id).Contexts.get(id);
             entity.Remove();
             this.UpdateEntities(entity);
         }
@@ -129,14 +133,18 @@ export class SolidDataService implements IDataActions {
     }
 
     public async ChangeContent(id: Id, content: any): Promise<void> {
-        const docID = id.split('#')[0];
-        const entity = this.getDocument().Contexts.get(id);
+        const doc = this.getDocument(id);
+        const entity = doc.Contexts.get(id);
+        if (!entity){
+            console.log(id.split('#')[1]);
+            console.log(...doc.Contexts.Items.map(x => x.Id.split('#')[1]))
+        }
         entity.Content = content;
         this.UpdateEntities(entity);
     }
 
-    public NewId(): string {
-        const id = this.getDocument().Contexts.Items.length + 1;
+    public NewId(parentId): string {
+        const id = this.getDocument(parentId).Contexts.Items.length + 1;
         return `${this.getDocument().URI}#${id}`;
     }
 

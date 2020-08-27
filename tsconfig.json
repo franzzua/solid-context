@@ -37,10 +37,10 @@
       ],
       "@ui": [
         "./ui"
+      ],
+      "solidocity": [
+        "../solidocity"
       ]
-//      "solidocity": [
-//        "../solidocity"
-//      ]
     },
     "plugins": [
       {
