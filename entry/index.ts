@@ -14,6 +14,7 @@ const app =ApplicationBuilder
     .withRouter({
     routes: [
         {name: 'base', path: '/', forwardTo: 'tree'},
+        {name: 'trip', path: '/trip'},
         {name: 'tree', path: '/context', }
     ],
     options: null

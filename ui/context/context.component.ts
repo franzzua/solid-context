@@ -9,7 +9,8 @@ import {
     Observable,
     shareReplay,
     switchMap,
-    tap
+    tap,
+    withLatestFrom,
 } from "@hypertype/core";
 import {Context, ContextTree, Path} from "@domain";
 import {TextContentComponent} from "./text-content.component";
@@ -40,7 +41,7 @@ customElements.define('context-content', TextContentComponent as any);
                 <div class="children">
                 ${isCollapsed ? '' : context.Children.map(child =>
             wire(wire, `context${child.getKey([...state.path, child.Id])}`)`
-                        <app-context path="${[...state.path, child.Id]}"></app-context>
+                        <app-context path="${[...state.path, child.Id]}" tree=${state.tree}></app-context>
                     `
         )}
                 </div>
@@ -51,13 +52,16 @@ customElements.define('context-content', TextContentComponent as any);
 })
 export class ContextComponent extends HyperComponent<IState> {
 
-    constructor(private tree: ContextTree) {
+    constructor() {
         super();
     }
 
 
     @property()
     public path$: Observable<Path>;
+
+    @property()
+    public tree$: Observable<ContextTree>;
 
     private Path$ = this.path$.pipe(
         distinctUntilChanged(arrayEqual)
@@ -69,16 +73,20 @@ export class ContextComponent extends HyperComponent<IState> {
         shareReplay(1)
     );
 
-    private context$: Observable<Context> = this.id$.pipe(
-        map(id => this.tree.Items.get(id)),
+    private context$: Observable<Context> = combineLatest([this.id$, this.tree$]).pipe(
+        map(([id, tree]) => tree.Items.get(id)),
         distinctUntilChanged(),
         switchMap(context => context.State$),
         filter(Fn.Ib),
         shareReplay(1)
     );
 
+    private CurrentPath$ = this.tree$.pipe(
+        switchMap(x => x.CurrentPath$)
+    )
+
     private IsSelected$ = combineLatest([
-        this.tree.CurrentPath$,
+        this.CurrentPath$,
         this.path$,
     ]).pipe(
         map(([cursorPath, currentPath]) => arrayEqual(cursorPath, currentPath)),
@@ -87,10 +95,10 @@ export class ContextComponent extends HyperComponent<IState> {
     );
 
     public State$ = combineLatest([
-        this.context$, this.path$, this.IsSelected$,
+        this.context$, this.path$, this.IsSelected$, this.tree$,
     ]).pipe(
-        map(([context, path, isSelected]) => ({
-            context, isSelected, path,
+        map(([context, path, isSelected, tree]) => ({
+            context, isSelected, path, tree,
             state: [
                 isSelected ? 'selected' : '',
                 (context.Children.length == 0) ? 'empty' : '',
@@ -104,6 +112,7 @@ export class ContextComponent extends HyperComponent<IState> {
 }
 
 interface IState {
+    tree: ContextTree;
     state: ('empty' | 'collapsed')[];
     context: Context;
     path: Path;

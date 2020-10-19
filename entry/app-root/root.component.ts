@@ -2,7 +2,7 @@ import {Component, HyperComponent, wire} from "@hypertype/ui";
 import {Injectable} from "@hypertype/core";
 import {Router, RouterState} from "@hypertype/app";
 import {IAppAuthService, IApplication} from "@app";
-import {KeyboardHandler} from "../handlers/keyboard.handler";
+import {KeyboardHandler} from "../../ui/handlers/keyboard.handler";
 import {IDataAdapter} from "@infr/proxies/IDataAdapter";
 import {IDataActions, RootDbo} from "@domain";
 
@@ -17,6 +17,12 @@ const pages = {
         return wire(wire, 'tree')`
             <ctx-tree></ctx-tree>
         `;
+    },
+
+    trip(state: RouterState) {
+        return wire(wire, 'tree')`
+            <trip-page></trip-page>
+        `;
     }
 };
 
@@ -24,12 +30,6 @@ const pages = {
 @Component({
     name: 'app-root',
     template: (html, state: RouterState, events) => html`
-        <button onclick=${events.login(x => x)}>login</button>
-        <button onclick=${events.clear(x => x)}>clear</button>
-        <div>
-            <button onclick="${events.goto(e => 'tree')}">tree</button>
-            <button onclick="${events.goto(e => 'whiteboard')}">whiteboard</button>
-        </div>
         ${pages[state.name](state)}
     `,
     style: require('./root.style.less')
