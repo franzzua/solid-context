@@ -9,9 +9,8 @@ import {IDataAdapter} from "@infr/proxies/IDataAdapter";
 @Injectable()
 export class HierarchyService {
     constructor(private tree: ContextTree,
-                private dataAdapter: IDataAdapter<IDataActions, RootDbo>,
+                private actions: IDataActions,
                 private Cursor: CursorService) {
-
     }
 
     private async MoveCurrent(target: { parent: Path, index: number }, copy = false) {
@@ -20,12 +19,12 @@ export class HierarchyService {
         const child = this.tree.Items.get(this.Cursor.getCurrent().Id);
         const parent = this.Cursor.getParent();
         if (copy) {
-            this.dataAdapter.Actions.AddChild(child.Id,
+            this.actions.AddChild(child.Id,
                 target.parent[target.parent.length - 1],
                 target.index);
             parent.AddChild(child, target.index);
         } else {
-            this.dataAdapter.Actions.ChangePosition(child.Id, {
+            this.actions.ChangePosition(child.Id, {
                 id: parent.Id,
                 index: parent.Children.indexOf(child)
             }, {
@@ -47,7 +46,7 @@ export class HierarchyService {
         const path = this.Cursor.getParentPath();
         const index = this.Cursor.getIndex() + 1;
         if (!context) {
-            const dbo = await this.dataAdapter.Actions.Create({
+            const dbo = await this.actions.Create({
                 Content: [{Text: ''}],
                 Id: undefined,
                 Children: [],
@@ -62,7 +61,7 @@ export class HierarchyService {
         this.Cursor.SetPath([
             ...path, context.Id
         ])
-        this.dataAdapter.Actions.AddChild(context.Id, parent.Id, index);
+        this.actions.AddChild(context.Id, parent.Id, index);
         return context;
     }
 
@@ -106,9 +105,9 @@ export class HierarchyService {
                 id
             ]);
         }
-        await this.dataAdapter.Actions.RemoveChild(parent.Id, index);
+        await this.actions.RemoveChild(parent.Id, index);
         if (current.Parents.size == 0) {
-            await this.dataAdapter.Actions.Delete(current.GetAllChildrenRecursive().map(c => c.Id));
+            await this.actions.Delete(current.GetAllChildrenRecursive().map(c => c.Id));
         }
     }
 

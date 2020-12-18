@@ -37,17 +37,17 @@ const pages = {
 export class RootComponent extends HyperComponent<RouterState> {
 
     constructor(private router: Router,
-                private application: IApplication,
+                /*private application: IApplication,
                 private dataService: IDataAdapter<IDataActions, RootDbo>,
                 private keyboardHanlder: KeyboardHandler,
-                private appAuthService: IAppAuthService) {
+                private appAuthService: IAppAuthService*/) {
         super();
-        this.keyboardHanlder.Actions$.subscribe();
-        appAuthService.GetSession().then(s => {
-            if (s) {
-                this.application.Start();
-            }
-        })
+        // this.keyboardHanlder.Actions$.subscribe();
+        // appAuthService.GetSession().then(s => {
+        //     if (s) {
+        //         this.application.Start();
+        //     }
+        // })
     }
 
     public State$ = this.router.State$;
@@ -57,10 +57,10 @@ export class RootComponent extends HyperComponent<RouterState> {
             this.router.Actions.navigate(path);
         },
         login: async () => {
-            await this.application.Start();
+            // await this.application.Start();
         },
         clear: async () => {
-            await this.dataService.Actions.Clear();
+            // await this.dataService.Actions.Clear();
         }
     }
 }

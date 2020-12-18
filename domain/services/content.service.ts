@@ -13,7 +13,7 @@ export class ContentService {
 
     public async SetContent(context: Context, content: string){
         context.SetText(content);
-        await this.dataAdapter.Actions.ChangeContent(context.Id, content);
+        // await this.dataAdapter.Actions.ChangeContent(context.Id, content);
     }
 
 

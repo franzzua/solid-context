@@ -1,8 +1,5 @@
 import {ContextDbo, RootDbo} from "../dbo/context.dbo";
 import {Id} from "../model/base/id";
-import {Observable} from "@hypertype/core";
-
-
 
 export abstract class IDataActions {
 

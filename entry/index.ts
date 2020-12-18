@@ -1,4 +1,5 @@
 import {init} from "@hypertype/ui";
+import {BrowserContainer} from "@hypertype/infr-browser";
 import {ApplicationBuilder} from "@hypertype/app";
 import {UIContainer} from "../ui/container";
 import {Container} from "@hypertype/core";
@@ -9,6 +10,7 @@ import {InfrContainer} from "@infr/container";
 const app =ApplicationBuilder
     .withInfrustructure(DomainContainer)
     .withInfrustructure(AppContainer)
+    .withInfrustructure(BrowserContainer)
     .withInfrustructure(InfrContainer)
     .withUI(UIContainer)
     .withRouter({

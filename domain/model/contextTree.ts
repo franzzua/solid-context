@@ -3,7 +3,13 @@ import {Tree} from "./base/tree";
 import {Context} from "./context";
 import {ContextDbo, ContextState, RootDbo} from "../dbo/context.dbo";
 import {User} from "./user";
-import {debounceTime, Injectable, mapTo, Observable, ReplaySubject, shareReplay, Subject} from "@hypertype/core";
+import {debounceTime, Injectable, mapTo, Observable, ReplaySubject, shareReplay, Subject, of} from "@hypertype/core";
+import {CursorService, HierarchyService} from "@domain/services";
+import {KeyboardHandler} from "../../ui/handlers/keyboard.handler";
+import {IDataAdapter} from "@infr/proxies/IDataAdapter";
+import {IDataActions} from "@domain/contracts";
+import {publicAccess} from "rdf-namespaces/dist/schema";
+import {content_encoded} from "rdf-namespaces/dist/sioc";
 
 class LocalStorage {
     public static Add = (target, key, desc) => {
@@ -55,18 +61,18 @@ export class ContextTree extends Tree<Context, ContextDbo, Id> {
         if (!this.Items) {
             this.Items = new Map(dbo.Contexts
                 .map(dbo => [dbo.Id, new Context(this, dbo)]));
-        }else{
+        } else {
 
-            for (let x of this.Items.keys()){
-                if (dbo.Contexts.every(c => c.Id != x)){
+            for (let x of this.Items.keys()) {
+                if (dbo.Contexts.every(c => c.Id != x)) {
                     this.Items.delete(x);
                 }
             }
             for (let x of dbo.Contexts) {
                 const existed = this.Items.get(x.Id);
-                if (!existed){
+                if (!existed) {
                     this.Items.set(x.Id, new Context(this, x))
-                }else{
+                } else {
                     existed.Value = x;
                 }
             }
@@ -153,4 +159,79 @@ export class ContextTree extends Tree<Context, ContextDbo, Id> {
     public SetActivePath(path: Path) {
         this.currentPathSubject$.next(path);
     }
+
+    public Cursor = new CursorService(this);
+
+
+    public Actions = new EventDataAdapter();
+    public Events$ = this.Actions.eventsSubject$.asObservable();
+
+    public Hierarchy = new HierarchyService(this, this.Actions, this.Cursor);
+    public Keyboard = new KeyboardHandler(this.Hierarchy, this, this.Cursor);
+
+}
+
+export class EventDataAdapter implements IDataActions {
+    public readonly eventsSubject$ = new Subject<{
+        type: "add" | "update" | "move" | "clear" |
+            "create" | "delete" | "detach";
+        data: any;
+    }>();
+
+
+    async AddChild(childId: Id, parentId: Id, index: number): Promise<void> {
+        this.eventsSubject$.next({
+            type: "add",
+            data: {childId, parentId, index}
+        });
+    }
+
+    async ChangeContent(id: Id, content: any): Promise<void> {
+        this.eventsSubject$.next({
+            type: "update",
+            data: {id, content}
+        });
+    }
+
+    async ChangePosition(id: Id, from: { id: Id; index: number }, to: { id: Id; index: number }): Promise<void> {
+        this.eventsSubject$.next({
+            type: "move",
+            data: {id, from, to}
+        });
+    }
+
+    async Clear(): Promise<any> {
+    }
+
+    async Create(context: ContextDbo): Promise<ContextDbo> {
+        context.Id = performance.now().toString();
+        this.eventsSubject$.next({
+            type: "create",
+            data: context
+        });
+        return context;
+    }
+
+    async Delete(ids: Id[]): Promise<any> {
+        this.eventsSubject$.next({
+            type: "delete",
+            data: ids
+        });
+    }
+
+    async Init(session): Promise<any> {
+        return Promise.resolve(undefined);
+    }
+
+    async Load(): Promise<RootDbo> {
+        return Promise.resolve(undefined);
+    }
+
+    async RemoveChild(parentId: Id, index: number): Promise<void> {
+        this.eventsSubject$.next({
+            type: "detach",
+            data: {parentId, index}
+        });
+    }
+
 }

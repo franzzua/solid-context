@@ -6,17 +6,15 @@ import {IDataAdapter} from "@infr/proxies/IDataAdapter";
 @Injectable()
 export class Application extends IApplication{
 
-    constructor(private appAuthService: IAppAuthService,
-                private tree: ContextTree,
-                private dataService: IDataAdapter<IDataActions, RootDbo>) {
+    constructor() {
         super();
     }
 
     public async Start(){
-        this.dataService.State$.subscribe(
-            data => this.tree.Load(data)
-        )
-        const session = await this.appAuthService.GetSession();
-        await this.dataService.Actions.Init(session);
+        // this.dataService.State$.subscribe(
+        //     data => this.tree.Load(data)
+        // )
+        // const session = await this.appAuthService.GetSession();
+        // await this.dataService.Actions.Init(session);
     }
 }
