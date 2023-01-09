@@ -23,7 +23,7 @@
     "@hypertype/infr-browser": "^3.4.11",
     "@hypertype/ui": "^3.3.17",
     "fabric": "^3.6.3",
-    "luxon": "^1.24.1",
+    "luxon": "^1.28.1",
     "rdf-namespaces": "^1.8.0",
     "solid-auth-client": "^2.5.0",
     "solidocity": "^1.2.1"
